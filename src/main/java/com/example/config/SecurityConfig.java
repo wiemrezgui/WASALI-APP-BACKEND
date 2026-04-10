@@ -40,7 +40,7 @@ public class SecurityConfig {
 		 http.cors(Customizer.withDefaults());
 		 http.csrf(AbstractHttpConfigurer::disable); 
 		 http.authorizeHttpRequests((requests) -> requests
-			 .requestMatchers("/api/auth/login", "/api/user/cin", "/api/auth/generate", "/api/role/rl", "/api/intervalleDistance/int", "/api/session/check", "/api/session/create", "/api/token/save", "/api/token/verify", "/api/token/email", "/error", "/api/user/createClient", "/api/user/createLivreur", "/api/user/email", "/api/user/updatePass", "/api/typeVehicule/type", "/api/jwt/check", "/api/gouv/gv", "/api/etat/get").permitAll()
+			 .requestMatchers("/api/contact/*","/api/auth/login", "/api/user/cin", "/api/auth/generate", "/api/role/rl", "/api/intervalleDistance/int", "/api/session/check", "/api/session/create", "/api/token/save", "/api/token/verify", "/api/token/email", "/error", "/api/user/createClient", "/api/user/createLivreur", "/api/user/email", "/api/user/updatePass", "/api/typeVehicule/type", "/api/jwt/check", "/api/gouv/gv", "/api/etat/get").permitAll()
 		 	 .anyRequest().authenticated()); 
 		 http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         	

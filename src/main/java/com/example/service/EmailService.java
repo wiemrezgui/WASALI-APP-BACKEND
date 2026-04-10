@@ -1,6 +1,8 @@
 package com.example.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -11,8 +13,11 @@ import jakarta.mail.internet.MimeMessage;
 public class EmailService {
 	
 	@Autowired 
-	private JavaMailSender sender; 
-	
+	private JavaMailSender sender;
+    @Value("${spring.mail.username}")
+
+    private String fromEmail;
+
 	public boolean send(String email, String resetLink) {
         
         try{
@@ -110,5 +115,64 @@ public class EmailService {
         	return false; 
         }
         	  
+    }
+    public void sendContactEmail(String name, String email, String phone, String message) {
+        try {
+            // 1. Envoyer l'email à l'administrateur
+            sendEmailToAdmin(name, email, phone, message);
+
+            // 2. Envoyer l'email de confirmation à l'utilisateur
+            sendConfirmationToUser(name, email);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de l'envoi de l'email: " + e.getMessage());
+        }
+    }
+
+    // Envoie l'email à l'administrateur
+    private void sendEmailToAdmin(String name, String email, String phone, String message) {
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+
+        mailMessage.setFrom(fromEmail);
+        mailMessage.setTo("haddad.iheb99@gmail.com");
+        mailMessage.setSubject("Nouveau message de contact - " + name);
+
+        String emailBody = "========================================\n" +
+                "NOUVEAU MESSAGE DE CONTACT\n" +
+                "========================================\n\n" +
+                "Détails de l'expéditeur :\n" +
+                "------------------------\n" +
+                "Nom complet : " + name + "\n" +
+                "Email : " + email + "\n" +
+                "Téléphone : " + (phone != null && !phone.isEmpty() ? phone : "Non fourni") + "\n\n" +
+                "Message :\n" +
+                "---------\n" +
+                message + "\n\n" +
+                "========================================\n" +
+                "Cet email a été envoyé automatiquement.\n" +
+                "========================================";
+
+        mailMessage.setText(emailBody);
+        sender.send(mailMessage);
+    }
+
+    // Envoie un email de confirmation à l'utilisateur
+    private void sendConfirmationToUser(String name, String email) {
+        SimpleMailMessage confirmationMessage = new SimpleMailMessage();
+
+        confirmationMessage.setFrom(fromEmail);
+        confirmationMessage.setTo(email);
+        confirmationMessage.setSubject("Confirmation de votre message - Wassali");
+
+        String confirmationBody = "Bonjour " + name + ",\n\n" +
+                "Nous accusons bonne réception de votre message.\n\n" +
+                "Notre équipe vous répondra dans les plus brefs délais (sous 24h).\n\n" +
+                "Merci de votre confiance.\n\n" +
+                "Cordialement,\n" +
+                "L'équipe Wassali\n" +
+                "Cet email est un accusé de réception automatique.";
+
+        confirmationMessage.setText(confirmationBody);
+        sender.send(confirmationMessage);
     }
 }
